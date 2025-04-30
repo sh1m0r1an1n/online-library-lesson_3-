@@ -63,6 +63,13 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ book.title }}</h5>
                             <p class="card-text">Автор: {{ book.author }}</p>
+                            {% if book.genres %}
+                            <p class="card-text">
+                                {% for genre in book.genres.split(',') %}
+                                <span class="badge bg-secondary me-1">{{ genre.strip() }}</span>
+                                {% endfor %}
+                            </p>
+                            {% endif %}
                             <a href="../media/{{ book.book_path }}" 
                                class="btn btn-primary" 
                                target="_blank" 

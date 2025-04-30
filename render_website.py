@@ -45,20 +45,12 @@ def generate_pages(books, template, page_size=20):
         print(f"Страница {index} с книгами успешно сгенерирована в {page_filename}")
 
 
-def create_redirect_index():
-    """Создает главный index.html для редиректа на первую страницу."""
-    with open("index.html", "w", encoding="utf-8") as file:
-        file.write('<meta http-equiv="refresh" content="0; URL=pages/index1.html">')
-    print("Главная страница index.html успешно создана для редиректа на первую страницу.")
-
-
 def render_website():
-    """Рендерит сайт, вызывая функции для загрузки данных, генерации страниц и создания главной index.html."""
+    """Рендерит сайт, вызывая функции для загрузки данных и генерации страниц."""
     books = load_books()
     env = Environment(loader=FileSystemLoader("."), autoescape=True)
     template = env.get_template("template.html")
     generate_pages(books, template, page_size=20)
-    create_redirect_index()
 
 
 def on_reload():
