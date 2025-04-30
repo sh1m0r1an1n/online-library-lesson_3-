@@ -17,13 +17,13 @@
             <div class="card h-100">
                 <div class="row g-0">
                     <div class="col-md-4">
-                        <img src="media/{{ book.img_src }}" class="img-fluid rounded-start" alt="Обложка книги {{ book.title }}">
+                        <img src="../media/{{ book.img_src }}" class="img-fluid rounded-start" alt="Обложка книги {{ book.title }}">
                     </div>
                     <div class="col-md-8">
                         <div class="card-body">
                             <h5 class="card-title">{{ book.title }}</h5>
                             <p class="card-text">Автор: {{ book.author }}</p>
-                            <a href="media/{{ book.book_path }}" 
+                            <a href="../media/{{ book.book_path }}" 
                                class="btn btn-primary" 
                                target="_blank" 
                                rel="noopener noreferrer">Читать</a>
@@ -35,6 +35,35 @@
         {% endfor %}
     </div>
     {% endfor %}
+
+    <!-- Добавляем блок навигации для переключения страниц -->
+    <nav aria-label="Page navigation" class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if prev_page %}
+        <li class="page-item">
+          <a class="page-link" href="{{ prev_page }}" aria-label="Previous">
+            <span aria-hidden="true">&laquo; Предыдущая</span>
+          </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <span class="page-link">&laquo; Предыдущая</span>
+        </li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">Страница {{ current_page }} из {{ total_pages }}</span></li>
+        {% if next_page %}
+        <li class="page-item">
+          <a class="page-link" href="{{ next_page }}" aria-label="Next">
+            <span aria-hidden="true">Следующая &raquo;</span>
+          </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <span class="page-link">Следующая &raquo;</span>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
 </div>
 </body>
 </html>
