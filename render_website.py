@@ -3,6 +3,7 @@ import os
 from jinja2 import Environment, FileSystemLoader
 from livereload import Server
 from more_itertools import chunked
+import urllib.parse
 
 
 def render_website():
@@ -13,6 +14,14 @@ def render_website():
     for book in books:
         if 'img_src' in book:
             book['img_src'] = os.path.normpath(book['img_src']).replace(os.sep, '/')
+        
+        if 'book_path' in book:
+            normalized_path = os.path.normpath(book['book_path']).replace(os.sep, '/')
+            
+            path_parts = normalized_path.split('/')
+            encoded_parts = [urllib.parse.quote(part) for part in path_parts]
+            
+            book['book_path'] = '/'.join(encoded_parts)
 
     books_pairs = list(chunked(books, 2))
 
