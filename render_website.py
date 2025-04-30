@@ -1,6 +1,7 @@
 import json
 import os
 from jinja2 import Environment, FileSystemLoader
+from livereload import Server
 
 
 def render_website():
@@ -18,10 +19,24 @@ def render_website():
     with open("index.html", "w", encoding="utf-8") as file:
         file.write(rendered_html)
     print("Сайт с книгами успешно сгенерирован в index.html")
+    
+    return rendered_html
+
+
+def on_reload():
+    """Функция для перерендеринга при изменении шаблона."""
+    render_website()
+    return
 
 
 def main():
+    """Запускает локальный сервер с livereload для удобной разработки."""
     render_website()
+    
+    server = Server()
+    server.watch('template.html', on_reload)
+    server.watch('media/meta_data.json', on_reload)
+    server.serve(root='.', port=5500)
 
 
 if __name__ == "__main__":
