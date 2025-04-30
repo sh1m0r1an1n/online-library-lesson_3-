@@ -2,6 +2,7 @@ import json
 import os
 from jinja2 import Environment, FileSystemLoader
 from livereload import Server
+from more_itertools import chunked
 
 
 def render_website():
@@ -13,9 +14,11 @@ def render_website():
         if 'img_src' in book:
             book['img_src'] = os.path.normpath(book['img_src']).replace(os.sep, '/')
 
+    books_pairs = list(chunked(books, 2))
+
     env = Environment(loader=FileSystemLoader("."), autoescape=True)
     template = env.get_template("template.html")
-    rendered_html = template.render(books=books)
+    rendered_html = template.render(books_pairs=books_pairs)
     with open("index.html", "w", encoding="utf-8") as file:
         file.write(rendered_html)
     print("Сайт с книгами успешно сгенерирован в index.html")
