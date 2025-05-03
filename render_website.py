@@ -4,6 +4,7 @@ from jinja2 import Environment, FileSystemLoader
 from livereload import Server
 from more_itertools import chunked
 import urllib.parse
+from dotenv import load_dotenv
 
 
 def load_books():
@@ -22,7 +23,7 @@ def load_books():
     return books
 
 
-def generate_pages(books, template, page_size=20):
+def generate_pages(books, template, bootstrap_path, page_size=20):
     """Генерирует HTML-страницы с книгами, разбитыми по страницам."""
     pages = list(chunked(books, page_size))
     total_pages = len(pages)
@@ -37,7 +38,8 @@ def generate_pages(books, template, page_size=20):
             current_page=index,
             total_pages=total_pages,
             prev_page=prev_page,
-            next_page=next_page
+            next_page=next_page,
+            bootstrap_path=bootstrap_path
         )
         page_filename = f"pages/index{index}.html"
         with open(page_filename, "w", encoding="utf-8") as file:
@@ -45,25 +47,29 @@ def generate_pages(books, template, page_size=20):
         print(f"Страница {index} с книгами успешно сгенерирована в {page_filename}")
 
 
-def render_website():
+def render_website(bootstrap_path):
     """Рендерит сайт, вызывая функции для загрузки данных и генерации страниц."""
     books = load_books()
     env = Environment(loader=FileSystemLoader("."), autoescape=True)
     template = env.get_template("template.html")
-    generate_pages(books, template, page_size=20)
-
-
-def on_reload():
-    """Перерендеривает сайт при изменении шаблона или данных."""
-    render_website()
-    return
+    generate_pages(books, template, bootstrap_path, page_size=20)
 
 
 def main():
     """Запускает локальный сервер с livereload для удобной разработки."""
-    render_website()
+    load_dotenv()
+
+    bootstrap_path = os.getenv('BOOTSTRAP_PATH', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css')
+    
+    render_website(bootstrap_path)
     
     server = Server()
+
+    def on_reload():
+        """Перерендеривает сайт при изменении шаблона или данных."""
+        render_website(bootstrap_path)
+        return
+    
     server.watch('template.html', on_reload)
     server.watch('media/meta_data.json', on_reload)
     server.serve(root='.', port=5500)
