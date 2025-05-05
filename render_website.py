@@ -1,3 +1,4 @@
+import functools
 import json
 import os
 import urllib.parse
@@ -8,9 +9,16 @@ from livereload import Server
 from more_itertools import chunked
 
 
+TEMPLATE_PATH = "template.html"
+METADATA_PATH = "media/meta_data.json"
+DEFAULT_PAGE_SIZE = 20
+SERVER_PORT = 5500
+DEFAULT_BOOTSTRAP_PATH = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css'
+
+
 def load_books():
     """Загружает и нормализует данные книг из media/meta_data.json."""
-    with open("media/meta_data.json", "r", encoding="utf-8") as file:
+    with open(METADATA_PATH, "r", encoding="utf-8") as file:
         books = json.load(file)
 
     for book in books:
@@ -24,7 +32,7 @@ def load_books():
     return books
 
 
-def generate_pages(books, template, bootstrap_path, page_size=20):
+def generate_pages(books, template, bootstrap_path, page_size=DEFAULT_PAGE_SIZE):
     """Генерирует HTML-страницы с книгами, разбитыми по страницам."""
     pages = list(chunked(books, page_size))
     total_pages = len(pages)
@@ -51,28 +59,30 @@ def render_website(bootstrap_path):
     """Рендерит сайт, вызывая функции для загрузки данных и генерации страниц."""
     books = load_books()
     env = Environment(loader=FileSystemLoader("."), autoescape=True)
-    template = env.get_template("template.html")
-    generate_pages(books, template, bootstrap_path, page_size=20)
+    template = env.get_template(TEMPLATE_PATH)
+    generate_pages(books, template, bootstrap_path, page_size=DEFAULT_PAGE_SIZE)
+
+
+def on_reload(bootstrap_path):
+    """Перерендеривает сайт при изменении шаблона или данных."""
+    render_website(bootstrap_path)
 
 
 def main():
     """Запускает локальный сервер с livereload для удобной разработки."""
     load_dotenv()
 
-    bootstrap_path = os.getenv('BOOTSTRAP_PATH', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css')
+    bootstrap_path = os.getenv('BOOTSTRAP_PATH', DEFAULT_BOOTSTRAP_PATH)
     
     render_website(bootstrap_path)
     
     server = Server()
-
-    def on_reload():
-        """Перерендеривает сайт при изменении шаблона или данных."""
-        render_website(bootstrap_path)
-        return
     
-    server.watch('template.html', on_reload)
-    server.watch('media/meta_data.json', on_reload)
-    server.serve(root='.', port=5500)
+    reload_handler = functools.partial(on_reload, bootstrap_path)
+    
+    server.watch(TEMPLATE_PATH, reload_handler)
+    server.watch(METADATA_PATH, reload_handler)
+    server.serve(root='.', port=SERVER_PORT)
 
 
 if __name__ == "__main__":
