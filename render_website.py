@@ -1,10 +1,11 @@
 import json
 import os
+import urllib.parse
+
+from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader
 from livereload import Server
 from more_itertools import chunked
-import urllib.parse
-from dotenv import load_dotenv
 
 
 def load_books():
