@@ -45,7 +45,6 @@ def generate_pages(books, template, bootstrap_path, page_size=20):
         page_filename = f"pages/index{index}.html"
         with open(page_filename, "w", encoding="utf-8") as file:
             file.write(rendered_html)
-        print(f"Страница {index} с книгами успешно сгенерирована в {page_filename}")
 
 
 def render_website(bootstrap_path):
