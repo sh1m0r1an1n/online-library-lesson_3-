@@ -31,7 +31,7 @@ def generate_pages(books, template, bootstrap_path, page_size=20):
     os.makedirs("pages", exist_ok=True)
     
     for index, page_books in enumerate(pages, start=1):
-        books_pairs = list(chunked(page_books, 2))
+        books_pairs = list(chunked(page_books, n=2))
         prev_page = f"index{index-1}.html" if index > 1 else None
         next_page = f"index{index+1}.html" if index < total_pages else None
         rendered_html = template.render(
