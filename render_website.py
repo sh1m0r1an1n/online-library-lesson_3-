@@ -2,6 +2,7 @@ import functools
 import json
 import os
 import urllib.parse
+import argparse
 
 from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader
@@ -9,17 +10,51 @@ from livereload import Server
 from more_itertools import chunked
 
 
-# Константы
-TEMPLATE_PATH = "template.html"
-METADATA_PATH = "media/meta_data.json"
+DEFAULT_TEMPLATE_PATH = "template.html"
+DEFAULT_METADATA_PATH = "media/meta_data.json"
 DEFAULT_PAGE_SIZE = 20
-SERVER_PORT = 5500
+DEFAULT_SERVER_PORT = 5500
 DEFAULT_BOOTSTRAP_PATH = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
 
 
-def load_books():
+def parse_arguments():
+    """Парсит аргументы командной строки и переменные окружения."""
+    parser = argparse.ArgumentParser(description="Генератор сайта библиотеки")
+    
+    parser.add_argument(
+        "--template-path",
+        default=os.getenv("TEMPLATE_PATH", DEFAULT_TEMPLATE_PATH),
+        help="Путь к HTML шаблону"
+    )
+    parser.add_argument(
+        "--metadata-path",
+        default=os.getenv("METADATA_PATH", DEFAULT_METADATA_PATH),
+        help="Путь к файлу с метаданными книг"
+    )
+    parser.add_argument(
+        "--bootstrap-path",
+        default=os.getenv("BOOTSTRAP_PATH", DEFAULT_BOOTSTRAP_PATH),
+        help="Путь к CSS файлам Bootstrap"
+    )
+    parser.add_argument(
+        "--page-size",
+        type=int,
+        default=int(os.getenv("PAGE_SIZE", DEFAULT_PAGE_SIZE)),
+        help="Количество книг на странице"
+    )
+    parser.add_argument(
+        "--server-port",
+        type=int,
+        default=int(os.getenv("SERVER_PORT", DEFAULT_SERVER_PORT)),
+        help="Порт для локального сервера"
+    )
+    
+    return parser.parse_args()
+
+
+def load_books(metadata_path):
     """Загружает и нормализует данные книг из media/meta_data.json."""
-    with open(METADATA_PATH, "r", encoding="utf-8") as file:
+    with open(metadata_path, "r", encoding="utf-8") as file:
         books = json.load(file)
 
     for book in books:
@@ -56,34 +91,32 @@ def generate_pages(books, template, bootstrap_path, page_size=DEFAULT_PAGE_SIZE)
             file.write(rendered_html)
 
 
-def render_website(bootstrap_path):
+def render_website(args):
     """Рендерит сайт, вызывая функции для загрузки данных и генерации страниц."""
-    books = load_books()
+    books = load_books(args.metadata_path)
     env = Environment(loader=FileSystemLoader("."), autoescape=True)
-    template = env.get_template(TEMPLATE_PATH)
-    generate_pages(books, template, bootstrap_path, page_size=DEFAULT_PAGE_SIZE)
+    template = env.get_template(args.template_path)
+    generate_pages(books, template, args.bootstrap_path, args.page_size)
 
 
-def on_reload(bootstrap_path):
+def on_reload(args):
     """Перерендеривает сайт при изменении шаблона или данных."""
-    render_website(bootstrap_path)
+    render_website(args)
 
 
 def main():
     """Запускает локальный сервер с livereload для удобной разработки."""
     load_dotenv()
-
-    bootstrap_path = os.getenv("BOOTSTRAP_PATH", DEFAULT_BOOTSTRAP_PATH)
+    args = parse_arguments()
     
-    render_website(bootstrap_path)
+    render_website(args)
     
     server = Server()
+    reload_handler = functools.partial(on_reload, args)
     
-    reload_handler = functools.partial(on_reload, bootstrap_path)
-    
-    server.watch(TEMPLATE_PATH, reload_handler)
-    server.watch(METADATA_PATH, reload_handler)
-    server.serve(root=".", port=SERVER_PORT)
+    server.watch(args.template_path, reload_handler)
+    server.watch(args.metadata_path, reload_handler)
+    server.serve(root=".", port=args.server_port)
 
 
 if __name__ == "__main__":
