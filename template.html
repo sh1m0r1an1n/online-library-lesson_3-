@@ -1,89 +1,89 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Книги</title>
     <link rel="icon" type="image/x-icon" href="../favicon.ico">
     <link href="{{ bootstrap_path }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
-</head>
-<body>
-<div class="container">
-    <h1 class="my-4">Каталог книг</h1>
-    
-    <!-- Добавляем блок навигации для переключения страниц -->
-    <nav aria-label="Page navigation" class="mb-4">
-      <ul class="pagination justify-content-center">
-        {% if prev_page %}
-        <li class="page-item">
-          <a class="page-link" href="{{ prev_page }}" aria-label="Previous">
-            <span aria-hidden="true">&laquo; Предыдущая</span>
-          </a>
-        </li>
-        {% else %}
-        <li class="page-item disabled">
-          <span class="page-link">&laquo; Предыдущая</span>
-        </li>
-        {% endif %}
-        <!-- Генерируем номера страниц -->
-        {% for page_num in range(1, total_pages + 1) %}
-          {% if page_num == current_page %}
-          <li class="page-item active">
-            <span class="page-link">{{ page_num }}</span>
-          </li>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="my-4">Каталог книг</h1>
+      
+      <!-- Добавляем блок навигации для переключения страниц -->
+      <nav aria-label="Page navigation" class="mb-4">
+        <ul class="pagination justify-content-center">
+          {% if prev_page %}
+            <li class="page-item">
+              <a class="page-link" href="{{ prev_page }}" aria-label="Previous">
+                <span aria-hidden="true">&laquo; Предыдущая</span>
+              </a>
+            </li>
           {% else %}
-          <li class="page-item">
-            <a class="page-link" href="index{{ page_num }}.html">{{ page_num }}</a>
-          </li>
+            <li class="page-item disabled">
+              <span class="page-link">&laquo; Предыдущая</span>
+            </li>
           {% endif %}
-        {% endfor %}
-        {% if next_page %}
-        <li class="page-item">
-          <a class="page-link" href="{{ next_page }}" aria-label="Next">
-            <span aria-hidden="true">Следующая &raquo;</span>
-          </a>
-        </li>
-        {% else %}
-        <li class="page-item disabled">
-          <span class="page-link">Следующая &raquo;</span>
-        </li>
-        {% endif %}
-      </ul>
-    </nav>
-    
-    {% for book_pair in books_pairs %}
-    <div class="row mb-4">
-        {% for book in book_pair %}
-        <div class="col-md-6">
-            <div class="card h-100">
+          <!-- Генерируем номера страниц -->
+          {% for page_num in range(1, total_pages + 1) %}
+            {% if page_num == current_page %}
+              <li class="page-item active">
+                <span class="page-link">{{ page_num }}</span>
+              </li>
+            {% else %}
+              <li class="page-item">
+                <a class="page-link" href="index{{ page_num }}.html">{{ page_num }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+          {% if next_page %}
+            <li class="page-item">
+              <a class="page-link" href="{{ next_page }}" aria-label="Next">
+                <span aria-hidden="true">Следующая &raquo;</span>
+              </a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">Следующая &raquo;</span>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+      
+      {% for book_pair in books_pairs %}
+        <div class="row mb-4">
+          {% for book in book_pair %}
+            <div class="col-md-6">
+              <div class="card h-100">
                 <div class="row g-0">
-                    <div class="col-md-4">
-                        <img src="{{ book.img_src }}" class="img-fluid rounded-start" alt="Обложка книги {{ book.title }}">
+                  <div class="col-md-4">
+                    <img src="{{ book.img_src }}" class="img-fluid rounded-start" alt="Обложка книги {{ book.title }}">
+                  </div>
+                  <div class="col-md-8">
+                    <div class="card-body">
+                      <h5 class="card-title">{{ book.title }}</h5>
+                      <p class="card-text">Автор: {{ book.author }}</p>
+                      {% if book.genres %}
+                        <p class="card-text">
+                          {% for genre in book.genres.split(',') %}
+                            <span class="badge bg-secondary me-1">{{ genre.strip() }}</span>
+                          {% endfor %}
+                        </p>
+                      {% endif %}
+                      <a href="{{ book.book_path }}"
+                         class="btn btn-primary" 
+                         target="_blank" 
+                         rel="noopener noreferrer">Читать</a>
                     </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ book.title }}</h5>
-                            <p class="card-text">Автор: {{ book.author }}</p>
-                            {% if book.genres %}
-                            <p class="card-text">
-                                {% for genre in book.genres.split(',') %}
-                                <span class="badge bg-secondary me-1">{{ genre.strip() }}</span>
-                                {% endfor %}
-                            </p>
-                            {% endif %}
-                            <a href="{{ book.book_path }}"
-                               class="btn btn-primary" 
-                               target="_blank" 
-                               rel="noopener noreferrer">Читать</a>
-                        </div>
-                    </div>
+                  </div>
                 </div>
+              </div>
             </div>
+          {% endfor %}
         </div>
-        {% endfor %}
+      {% endfor %}
     </div>
-    {% endfor %}
-</div>
-</body>
-</html>
+  </body>
+</html> 
