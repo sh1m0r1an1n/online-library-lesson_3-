@@ -60,6 +60,7 @@ def load_books(metadata_path):
     for book in books:
         if "img_src" in book:
             book["img_src"] = os.path.normpath(book["img_src"]).replace(os.sep, "/")
+            book["img_src"] = f"../media/{book['img_src']}"
         if "book_path" in book:
             normalized_path = os.path.normpath(book["book_path"]).replace(os.sep, "/")
             path_parts = normalized_path.split("/")

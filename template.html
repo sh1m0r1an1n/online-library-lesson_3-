@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Книги</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
     <link href="{{ bootstrap_path }}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
 </head>
 <body>
 <div class="container">
@@ -57,7 +59,7 @@
             <div class="card h-100">
                 <div class="row g-0">
                     <div class="col-md-4">
-                        <img src="../media/{{ book.img_src }}" class="img-fluid rounded-start" alt="Обложка книги {{ book.title }}">
+                        <img src="{{ book.img_src }}" class="img-fluid rounded-start" alt="Обложка книги {{ book.title }}">
                     </div>
                     <div class="col-md-8">
                         <div class="card-body">
@@ -70,7 +72,7 @@
                                 {% endfor %}
                             </p>
                             {% endif %}
-                            <a href="../media/{{ book.book_path }}"
+                            <a href="{{ book.book_path }}"
                                class="btn btn-primary" 
                                target="_blank" 
                                rel="noopener noreferrer">Читать</a>
