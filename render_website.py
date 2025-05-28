@@ -1,8 +1,8 @@
+import argparse
 import functools
 import json
 import os
 import urllib.parse
-import argparse
 
 from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader
