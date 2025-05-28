@@ -9,7 +9,6 @@ from jinja2 import Environment, FileSystemLoader
 from livereload import Server
 from more_itertools import chunked
 
-
 DEFAULT_TEMPLATE_PATH = "template.html"
 DEFAULT_METADATA_PATH = "media/meta_data.json"
 DEFAULT_PAGE_SIZE = 20
@@ -20,7 +19,7 @@ DEFAULT_BOOTSTRAP_PATH = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/
 def parse_arguments():
     """Парсит аргументы командной строки и переменные окружения."""
     parser = argparse.ArgumentParser(description="Генератор сайта библиотеки")
-    
+
     parser.add_argument(
         "--template-path",
         default=os.getenv("TEMPLATE_PATH", DEFAULT_TEMPLATE_PATH),
@@ -48,24 +47,31 @@ def parse_arguments():
         default=int(os.getenv("SERVER_PORT", DEFAULT_SERVER_PORT)),
         help="Порт для локального сервера"
     )
-    
+
     return parser.parse_args()
 
 
 def load_books(metadata_path):
-    """Загружает и нормализует данные книг из media/meta_data.json."""
+    """Загружает и нормализует данные книг из meta_data.json."""
     with open(metadata_path, "r", encoding="utf-8") as file:
         books = json.load(file)
 
+    metadata_dir = os.path.dirname(os.path.abspath(metadata_path))
+
     for book in books:
         if "img_src" in book:
-            book["img_src"] = os.path.normpath(book["img_src"]).replace(os.sep, "/")
-            book["img_src"] = f"../media/{book['img_src']}"
+            abs_img_path = os.path.normpath(os.path.join(metadata_dir, book["img_src"]))
+            rel_img_path = os.path.relpath(abs_img_path, "pages")
+            book["img_src"] = rel_img_path.replace(os.sep, "/")
+            
         if "book_path" in book:
-            normalized_path = os.path.normpath(book["book_path"]).replace(os.sep, "/")
-            path_parts = normalized_path.split("/")
+            abs_book_path = os.path.normpath(os.path.join(metadata_dir, book["book_path"]))
+            rel_book_path = os.path.relpath(abs_book_path, "pages")
+
+            path_parts = rel_book_path.split(os.sep)
             encoded_parts = [urllib.parse.quote(part) for part in path_parts]
             book["book_path"] = "/".join(encoded_parts)
+            
     return books
 
 
@@ -74,11 +80,11 @@ def generate_pages(books, template, bootstrap_path, page_size=DEFAULT_PAGE_SIZE)
     pages = list(chunked(books, page_size))
     total_pages = len(pages)
     os.makedirs("pages", exist_ok=True)
-    
+
     for index, page_books in enumerate(pages, start=1):
         books_pairs = list(chunked(page_books, n=2))
-        prev_page = f"index{index-1}.html" if index > 1 else None
-        next_page = f"index{index+1}.html" if index < total_pages else None
+        prev_page = f"index{index - 1}.html" if index > 1 else None
+        next_page = f"index{index + 1}.html" if index < total_pages else None
         rendered_html = template.render(
             books_pairs=books_pairs,
             current_page=index,
@@ -109,12 +115,12 @@ def main():
     """Запускает локальный сервер с livereload для удобной разработки."""
     load_dotenv()
     args = parse_arguments()
-    
+
     render_website(args)
-    
+
     server = Server()
     reload_handler = functools.partial(on_reload, args)
-    
+
     server.watch(args.template_path, reload_handler)
     server.watch(args.metadata_path, reload_handler)
     server.serve(root=".", port=args.server_port)
