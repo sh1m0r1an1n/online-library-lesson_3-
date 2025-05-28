@@ -13,7 +13,8 @@ DEFAULT_TEMPLATE_PATH = "template.html"
 DEFAULT_METADATA_PATH = "media/meta_data.json"
 DEFAULT_PAGE_SIZE = 20
 DEFAULT_SERVER_PORT = 5500
-DEFAULT_BOOTSTRAP_PATH = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+DEFAULT_BOOTSTRAP_PATH = "../static/bootstrap.min.css"
+DEFAULT_BOOTSTRAP_JS_PATH = "../static/bootstrap.bundle.min.js"
 
 
 def parse_arguments():
@@ -34,6 +35,11 @@ def parse_arguments():
         "--bootstrap-path",
         default=os.getenv("BOOTSTRAP_PATH", DEFAULT_BOOTSTRAP_PATH),
         help="Путь к CSS файлам Bootstrap"
+    )
+    parser.add_argument(
+        "--bootstrap-js-path",
+        default=os.getenv("BOOTSTRAP_JS_PATH", DEFAULT_BOOTSTRAP_JS_PATH),
+        help="Путь к JS файлам Bootstrap"
     )
     parser.add_argument(
         "--page-size",
@@ -75,7 +81,7 @@ def load_books(metadata_path):
     return books
 
 
-def generate_pages(books, template, bootstrap_path, page_size=DEFAULT_PAGE_SIZE):
+def generate_pages(books, template, bootstrap_path, bootstrap_js_path, page_size=DEFAULT_PAGE_SIZE):
     """Генерирует HTML-страницы с книгами, разбитыми по страницам."""
     pages = list(chunked(books, page_size))
     total_pages = len(pages)
@@ -91,7 +97,8 @@ def generate_pages(books, template, bootstrap_path, page_size=DEFAULT_PAGE_SIZE)
             total_pages=total_pages,
             prev_page=prev_page,
             next_page=next_page,
-            bootstrap_path=bootstrap_path
+            bootstrap_path=bootstrap_path,
+            bootstrap_js_path=bootstrap_js_path
         )
         page_filename = f"pages/index{index}.html"
         with open(page_filename, "w", encoding="utf-8") as file:
@@ -103,7 +110,7 @@ def render_website(args):
     books = load_books(args.metadata_path)
     env = Environment(loader=FileSystemLoader("."), autoescape=True)
     template = env.get_template(args.template_path)
-    generate_pages(books, template, args.bootstrap_path, args.page_size)
+    generate_pages(books, template, args.bootstrap_path, args.bootstrap_js_path, args.page_size)
 
 
 def on_reload(args):

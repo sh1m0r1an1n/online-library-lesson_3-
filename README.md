@@ -9,11 +9,13 @@
 - 📖 Прямые ссылки на тексты книг
 - 🎨 Адаптивный дизайн на Bootstrap
 - 🔄 Автоматическое обновление при изменении данных
+- 💻 Работа в оффлайн-режиме
 
 ## Требования
 
 - Python 3.7+
 - Зависимости из `requirements.txt`
+- Bootstrap CSS и JS (включены локально или доступны через CDN)
 
 ## Установка
 
@@ -63,7 +65,14 @@ python render_website.py
 # Пути к файлам
 TEMPLATE_PATH=template.html
 METADATA_PATH=media/meta_data.json
-BOOTSTRAP_PATH=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css
+
+# Bootstrap файлы (для оффлайн-режима)
+BOOTSTRAP_PATH=../static/bootstrap.min.css
+BOOTSTRAP_JS_PATH=../static/bootstrap.bundle.min.js
+
+# Bootstrap файлы (для онлайн-режима)
+# BOOTSTRAP_PATH=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css
+# BOOTSTRAP_JS_PATH=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js
 
 # Настройки сайта
 PAGE_SIZE=20
@@ -80,6 +89,7 @@ python render_website.py --help
 - `--template-path` - путь к HTML шаблону
 - `--metadata-path` - путь к файлу с метаданными книг
 - `--bootstrap-path` - путь к CSS файлам Bootstrap
+- `--bootstrap-js-path` - путь к JS файлам Bootstrap
 - `--page-size` - количество книг на странице
 - `--server-port` - порт для локального сервера
 
@@ -90,6 +100,10 @@ online-library/
 ├── media/              # Медиафайлы (обложки, тексты книг)
 │   └── meta_data.json  # Метаданные книг
 ├── pages/             # Сгенерированные HTML-страницы
+├── static/            # Статические файлы (Bootstrap, favicon)
+│   ├── bootstrap.min.css
+│   ├── bootstrap.bundle.min.js
+│   └── favicon.ico
 ├── template.html      # Шаблон сайта
 ├── render_website.py  # Скрипт генерации сайта
 ├── requirements.txt   # Зависимости проекта
